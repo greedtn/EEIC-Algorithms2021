@@ -23,7 +23,7 @@ def solve(a, b):
         if ah == bh:
             print(i)
         if i + al < bl:
-            bh = bh * base + ord(b[i+al]) - ord(b[i]) + t
+            bh = bh * base + ord(b[i+al]) - ord(b[i]) * t
             bh %= h
 
     return False
