@@ -1,8 +1,4 @@
-import sys
-import resource
-
-sys.setrecursionlimit(1000000)
-resource.setrlimit(resource.RLIMIT_STACK, (-1, -1))
+from collections import deque
 
 N, M = map(int, input().split())
 
@@ -21,21 +17,20 @@ K = int(input())
 
 ok = [True] * N
 
-def dfs(edges, v, step):
-    if step == 0:
-        return 0
-        
-    ok[v] = False
-    
-    for next_v in edges[v]:
-        dfs(edges, next_v, step-1)
-
+visit = deque()
 
 for e in es:
-    ok[e-1] = False
+    visit.append((e-1, K))
 
-    for next_e in edges[e-1]:
-        dfs(edges, next_e, K)
+while visit:
+    v, step = visit.popleft()
+    ok[v] = False
+    if step == 0:
+        continue
+
+    for next_v in edges[v]:
+        if ok[next_v]:
+            visit.append((next_v, step-1))
 
 for i in range(N):
     if ok[i]:
