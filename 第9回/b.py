@@ -1,36 +1,62 @@
 from collections import deque
 
-H, W = map(int, input().split())
-sy, sx = map(int, input().split())
-gy, gx = map(int, input().split())
+N, M = map(int, input().split())
+S = input()
+INF = 10**18
+edges = [[] for _ in range(N)]
 
-INF = 10 ** 6
+s = []
 
-A = [input() for _ in range(H)]
-ans = [[INF for _ in range(W)] for _ in range(H)]
-ans[sy-1][sx-1] = 0
+for _ in range(M):
+    inp = input().split()
+    u = int(inp[0])
+    v = int(inp[1])
+    t = int(inp[2])
+    c = inp[3]
+    if c == S[0]:
+        s.append(u-1)
+        s.append(v-1)
+    edges[u-1].append([v-1, t, c])
+    edges[v-1].append([u-1, t, c])
 
-qx = deque()
-qx.append(sx-1)
-qy = deque()
-qy.append(sy-1)
+ANS = INF
 
-vx = [0, 1, 0, -1]
-vy = [1, 0, -1, 0]
+s_unique = list(set(s))
 
-while qx:
-    x = qx.popleft()
-    y = qy.popleft()
+dp = [[INF for _ in range(len(S)+1)] for _ in range(N)]
 
-    for i in range(4):
-        nx = x + vx[i]
-        ny = y + vy[i]
-        if 0 <= nx and nx <= W-1 and 0 <= ny and ny <= H-1:
-            now = ans[y][x]
-            next = ans[ny][nx]
-            # 後半のif文がないと無限ループになる
-            if A[ny][nx] == "." and (next == INF or now + 1 < next):
-                ans[ny][nx] = now + 1
-                qx.append(nx)
-                qy.append(ny)
-print(ans[gy-1][gx-1])
+for i in range(N):
+    dp[i][0] = 0
+
+for i in s_unique:
+
+    q = deque()
+    q.append([i, 0])
+    cnt = 1
+    while q and cnt <= 100000 :
+        tmp = q.popleft()
+        now = tmp[0]
+        now_s = tmp[1]
+        if now_s >= len(S):
+            continue
+        for e in edges[now]:
+            if e[2] == S[now_s]:
+                if dp[e[0]][now_s+1] > dp[now][now_s] + e[1]:
+                    dp[e[0]][now_s+1] = dp[now][now_s] + e[1]
+                    q.append([e[0], now_s+1])
+            else:
+                if dp[e[0]][now_s] > dp[now][now_s] + e[1]:
+                    dp[e[0]][now_s] = dp[now][now_s] + e[1]
+                    q.append([e[0], now_s])
+        cnt += 1
+
+for i in range(N):
+    ANS = min(ANS, dp[i][len(S)])
+if ANS == INF:
+    print(-1)
+else:
+    print(ANS)
+
+
+
+
